@@ -23,9 +23,11 @@ This Kioptrix VM Image are easy challenges. The object of the game is to acquire
 Resolucion
 Usaré una distribucion Kali OS como maquina atacante.
 
-![alt text](<images_writeup/image copy.png>)
+![alt text](<image copy.png>)
 
-## Discover
+## Fase de Fingerprinting / Reconocimiento (Reconnaissance): 
+
+### Descubrimiento de IP objetivo en la red
 
 Para el escaneo de red para descubrir las maquinas utilizo la herramienta netdiscover
 
@@ -33,9 +35,13 @@ Para el escaneo de red para descubrir las maquinas utilizo la herramienta netdis
 sudo netdiscover -r 10.0.2.0/24 -i eth0
 ```
 
-![alt text](images_writeup/image.png)
+![alt text](image.png)
 
-## Enumeration
+### Descubrimiento de puertos y servicios en el host objetivo
+
+ nmap -Pn -p- 10.0.2.5
+
+![alt text](image-14.png)
 
 ```
 sudo nmap -sS -sC -sV -O 10.0.2.5  
@@ -48,7 +54,7 @@ sudo nmap -sS -sC -sV -O 10.0.2.5
 **OS details**: Linux 2.4.9 - 2.4.18 (likely embedded), Roku HD1500 media player
 
 
-![alt text](images_writeup/image-1.png)
+![alt text](image-1.png)
 
 PORT      | STATE | SERVICE     | VERSION
 ----------|-------|-------------|---------------------------------------------------------------------------
@@ -59,9 +65,9 @@ PORT      | STATE | SERVICE     | VERSION
 443/tcp   | open  | ssl/https   | Apache/1.3.20 (Unix)  (Red-Hat/Linux) mod_ssl/2.8.4 OpenSSL/0.9.6b
 32768/tcp | open  | status      | 1 (RPC #100024)
 
+## Fase de Footprinting / Exploración (Scanning):
 
-### Puerto 139
-
+### Exploracion puerto 139
 msfconsole
 
 search smb_
@@ -76,24 +82,11 @@ run
 
 ![alt text](image-6.png)
 
-![alt text](image-7.png)
-
-![alt text](image-8.png)
+### Exploracion puerto 80
 
 
 
-
-
-### Puerto 80
-
-![alt text](image-2.png)
-
-
-![alt text](image-3.png)
-
-
-
-
+**Escaneo nikto**
 
 ```
 nikto -h 10.0.2.5   
@@ -142,12 +135,77 @@ nikto -h 10.0.2.5
 ```
 
 
+### Escaneo dirb
+
+```bash
+dirb http://10.0.2.5
+```
+
+
+![alt text](image-11.png)
+
+```bash
+---- Scanning URL: http://10.0.2.5/ ----
++ http://10.0.2.5/~operator (CODE:403|SIZE:273)                                                                    
++ http://10.0.2.5/~root (CODE:403|SIZE:269)                                                                        
++ http://10.0.2.5/cgi-bin/ (CODE:403|SIZE:272)                                                                     
++ http://10.0.2.5/index.html (CODE:200|SIZE:2890)                                                                  
+==> DIRECTORY: http://10.0.2.5/manual/                                                                             
+==> DIRECTORY: http://10.0.2.5/mrtg/                                                                               
+==> DIRECTORY: http://10.0.2.5/usage/                                                                              
+                                                                                                                   
+---- Entering directory: http://10.0.2.5/manual/ ----
+(!) WARNING: Directory IS LISTABLE. No need to scan it.                        
+    (Use mode '-w' if you want to scan it anyway)
+                                                                                                                   
+---- Entering directory: http://10.0.2.5/mrtg/ ----
++ http://10.0.2.5/mrtg/index.html (CODE:200|SIZE:17318)                                                            
+                                                                                                                   
+---- Entering directory: http://10.0.2.5/usage/ ----
++ http://10.0.2.5/usage/index.html (CODE:200|SIZE:4261) 
+```
+
+![alt text](image-12.png)
+
+![alt text](image-13.png)
+
+![alt text](image-10.png)
+
+
+### Escaneo nuclei
+
+![alt text](image-3.png)
+
+![alt text](image-9.png)
+
+### Resumen de resultados de escaneos con nmap
+
+### Escaneo de vulnerabilidades con vulscan
+
+## Fase de Explotacion / Obtención de Acceso (Gaining Access):
+
+### Puerto 139
+
+
+
+![alt text](image-7.png)
+
+![alt text](image-8.png)
 
 
 
 
 
-## Foothold
+### Puerto 80
+
+![alt text](image-2.png)
+
+
+
+
+
+
+
 
 ## Lateral Movement
 
