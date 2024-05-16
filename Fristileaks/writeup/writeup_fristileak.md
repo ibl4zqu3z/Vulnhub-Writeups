@@ -136,7 +136,13 @@ Obtengo el resultado:
 
 #### nikto
 
-─$ nikto -h 10.0.2.7
+Lanzo nikto para comprobar las posibles vulnerabilidades de la web alojada en la maquina
+
+```
+nikto -h 10.0.2.7
+```
+
+```
 - Nikto v2.5.0
 ---------------------------------------------------------------------------
 + Target IP:          10.0.2.7
@@ -165,21 +171,21 @@ Obtengo el resultado:
 + End Time:           2024-05-14 18:39:43 (GMT-4) (19 seconds)
 ---------------------------------------------------------------------------
 + 1 host(s) tested
+```
 
-
-#### Exploracion pasiva 
+#### Exploracion pasiva
 
 Abro un navegador para ver la web que nos ofrece la maquina en el puerto 80
 
 ![alt text](image-7.png)
 
-Miro su código 
+Miro su código:
 
 ![alt text](image-8.png)
 
 Tomo nota del pie de web que indica que los Fristileaks son:
 
-```
+```bash
 @meneer, @barrebas, @rikvduijn, @wez3forsec, @PyroBatNL, @0xDUDE, @annejanbrouwer, @Sander2121, Reinierk, @DearCharles, @miamat, MisterXE, BasB, Dwight, Egeltje, @pdersjant, @tcp130x10, @spierenburg, @ielmatani, @renepieters, Mystery guest, @EQ_uinix, @WhatSecurity, @mramsmeets, @Ar0xA
 ```
 
