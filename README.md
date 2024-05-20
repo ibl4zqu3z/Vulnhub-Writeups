@@ -31,12 +31,13 @@
 *D0g3*0itch*OffRes*LegionOfRinf*UniWA*wgucoo*Pr0ph3t*L0ner*_n00bz*OSINT Punchers*Tinfoil Hats*Hava*Team Neu*
 ```
 
+## WriteUps en completados
+
+[FristiLeaks 1.3](Fristileaks/writeup/writeup_fristileak.md)
 
 ## WriteUps en progreso
 
 [Kioptrix Level 1](<Kioptrix Level 1/writeup/writeup Kioptrix Level 1.md>)
-
-[FristiLeaks 1.3](Fristileaks/writeup/writeup_fristileak.md)
 
 [Mr Robot 1](<Mr Robot 1/writeup/writeup Mr Robot 1.md>)
 
