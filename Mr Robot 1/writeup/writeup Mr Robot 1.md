@@ -213,7 +213,7 @@ cat fsocity.dict | more
 
 ![alt text](image-17.png)
 
-Es un diccionario. Para ver cuantas lineas tiene el diccionario ejecuto el comando `cat fsocity.dict | wc -l` y nos da ![alt text](image-23.png) lineas.
+Es un diccionario. Para ver cuantas lineas tiene el diccionario ejecuto el comando `cat fsocity.dict | wc -l` y nos da 858160 lineas.
 
 ![alt text](image-18.png)
 
