@@ -1,47 +1,44 @@
 # MR ROBOT 1
 
-```
-                          _           _   
+```_           _   
  _ __ ___  _ __ _ __ ___ | |__   ___ | |_ 
 | '_ ` _ \| '__| '__/ _ \| '_ \ / _ \| __|
 | | | | | | |  | | | (_) | |_) | (_) | |_ 
 |_| |_| |_|_|  |_|  \___/|_.__/ \___/ \__|
 ```                                          
 
-**Date WriteUp**: DD / MM / YYYY
-**Difficulty**: beginner-intermediate
+- **Date WriteUp**: 25 / 05 / 2024
+- **Difficulty**: beginner-intermediate
 
-## MACHINE
-**Name**: Mr Robot 1
-**Date release**: 28 Jun 2016
-**Author**: Leon Johnson
-**Series**: Mr-Robot
+- **DATOS DE LA MAQUINA**
+  - **Nombre**: Mr Robot 1
+  - **Fecha de lanzamiento**: 28 Jun 2016
+  - **Autor**: Leon Johnson
+  - **Serie**: Mr-Robot
 
-**File Information**
-- **Filename**: mrRobot.ova
-- **File size**: 704MB
+- **Informacion de Archivo**
+  - **Nombre de Archivo**: mrRobot.ova
+  - **Tamaño del archivo**: 704MB
+  - **Descarga**
+  [mrRobot.ova](https://download.vulnhub.com/mrrobot/mrRobot.ova) (Size: 704MB)
+  - **Checksum**
+    - **MD5**: BC02C42815EAC4E872D753E1FD12DDC8
+    - **SHA1**: DC0EB84DA4C62284C688590EE092868CE84A09AB
 
-**Download**
-mrRobot.ova (Size: 704MB)
-Download (Mirror): https://download.vulnhub.com/mrrobot/mrRobot.ova
+- **Descripcion**
+  
+  Basado en el programa Mr. Robot.
+  
+  Esta VM tiene tres claves ocultas en diferentes ubicaciones. Tu objetivo es encontrar los tres. Cada clave es progresivamente difícil de encontrar.
+  
+  La VM no es demasiado difícil. No existe ninguna explotación avanzada ni ingeniería inversa. El nivel se considera principiante-intermedio.
 
-**Checksum**
-- **MD5**: BC02C42815EAC4E872D753E1FD12DDC8
-- **SHA1**: DC0EB84DA4C62284C688590EE092868CE84A09AB
+---
 
-**Description**
-
-Based on the show, Mr. Robot.
-
-This VM has three keys hidden in different locations. Your goal is to find all three. Each key is progressively difficult to find.
-
-The VM isn't too difficult. There isn't any advanced exploitation or reverse engineering. The level is considered beginner-intermediate.
-
-## Resolucion
+## Resolucion de la maquina
 
 - [MR ROBOT 1](#mr-robot-1)
-  - [MACHINE](#machine)
-  - [Resolucion](#resolucion)
+  - [Resolucion de la maquina](#resolucion-de-la-maquina)
   - [Fase de Fingerprinting / Reconocimiento (Reconnaissance):](#fase-de-fingerprinting--reconocimiento-reconnaissance)
     - [Descubrimiento de IP objetivo en la red](#descubrimiento-de-ip-objetivo-en-la-red)
     - [Descubrimiento de Puertos en objetivo](#descubrimiento-de-puertos-en-objetivo)
@@ -52,9 +49,13 @@ The VM isn't too difficult. There isn't any advanced exploitation or reverse eng
       - [Comprobacion de los hallazgos de la exploracion en el puerto 80](#comprobacion-de-los-hallazgos-de-la-exploracion-en-el-puerto-80)
         - [Comprobacion del archivo robots.txt](#comprobacion-del-archivo-robotstxt)
         - [Comprobacion de la instalacion Wordpress](#comprobacion-de-la-instalacion-wordpress)
-        - [Comprobacion de archivo license.txt](#comprobacion-de-archivo-licensetxt)
-    - [Explotacion](#explotacion)
-      - [Acceso al panel de control con las credenciales obtenidas](#acceso-al-panel-de-control-con-las-credenciales-obtenidas)
+  - [Fase de explotacion](#fase-de-explotacion)
+    - [Acceso al panel de control con las credenciales obtenidas](#acceso-al-panel-de-control-con-las-credenciales-obtenidas)
+    - [Obtencion de shell remota](#obtencion-de-shell-remota)
+      - [Obtencion de shell usando metasploit](#obtencion-de-shell-usando-metasploit)
+      - [Obtencion de shell modificando archivo legitimo de Wordpress](#obtencion-de-shell-modificando-archivo-legitimo-de-wordpress)
+  - [Elevacion de privilegios](#elevacion-de-privilegios)
+    - [Elevacion desde usuario daemon a usuario robot](#elevacion-desde-usuario-daemon-a-usuario-robot)
     - [Elevacion de privilegio a root](#elevacion-de-privilegio-a-root)
 
 
@@ -321,22 +322,19 @@ Usuario | Password
 --------|----------
 elliot  | ER28-0652
 
-##### Comprobacion de archivo license.txt
+## Fase de explotacion
 
-Descargo el fichero license.txt con el comando wget 10.0.2.18:80/license.txt
-
-![alt text](image-32.png)
-
-Una vez descargado compruebo el fichero.
-
-
-### Explotacion
-
-#### Acceso al panel de control con las credenciales obtenidas
+### Acceso al panel de control con las credenciales obtenidas
 
 Con estas claves puedo acceder al panel de administracion de wordpress, pero lo mas importante es que con esta credencial y usando el exploit adecuado podria cargar una shell.
 
+![alt text](image-5.png)
+
+### Obtencion de shell remota
+
 Para lograr esto puedo buscar en metasploit para comprobar si existe un exploit para wordpress que me permita cargar una shell.
+
+#### Obtencion de shell usando metasploit
 
 Cargo metasploit con `msfconsole` y realizo una busqueda con `search wordpress shell` y obtengo los siguientes resultados
 
@@ -378,10 +376,11 @@ Con el acceso al panel de administracion de wordpress subo el fichero generado.
 
 ![alt text](image-39.png)
 
-No he podido aun realizar la carga de mi shell en la web ya que todas me exigen un formato de archivo en concreto. 
+No he podido aun realizar la carga de mi shell en la web ya que todas me exigen un formato de archivo en concreto.
+
+#### Obtencion de shell modificando archivo legitimo de Wordpress
 
 Se me ha ocurrido modificar un archivo legitimo del tema para que cuando cargue se ejecute la shell. Para ello voy a la seccion donde estan los temas, busco el tema activado y busco un archivo que solo se ejecute bajo ciertas circunstancias como puede ser una pagina 404 de error preestablecida.
-
 
 ![alt text](image-40.png)
 
@@ -493,6 +492,10 @@ Al comprobarlo obtengo permiso denegado, por lo que compruebo los permisos de lo
 ![alt text](image-57.png)
 
 Veo que el fichero key-2-of-3.txt solo tiene permiso de lectura desde root, pero que el fichero password.raw-md5 tiene permisos de lectura desde cualquier usuario y permisos de escritura por root.
+
+## Elevacion de privilegios
+
+### Elevacion desde usuario daemon a usuario robot
 
 Compruebo el archivo password.raw-md5 al cual si tengo acceso desde el usuario actual
 
