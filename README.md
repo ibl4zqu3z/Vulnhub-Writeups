@@ -1,6 +1,6 @@
 # Vulnhub-Writeups
 
-```
+```bash
 *iMosuke*Infosec_zitro*CrackTheFlag*TheConquerors*Asur*4fun*Rogue-CTF*Cyber*TMHC*The_Pirhacks*btwIuseArch*MadDawgs*
 *HInc*The Pighty Mangolins*CCSF_RamSec*x4n0n*x0rc3r3rs*emehacr*Ph4n70m_R34p3r*humziq*Preeminence*UMGC*ByteBrigade*
 *TeamFastMark*Towson-Cyberkatz*meow*xrzhev*PA Hackers*Kuolema*Nakateam*L0g!c B0mb*NOVA-InfoSec*teamstyle*Panic*
@@ -33,17 +33,13 @@
 
 ## WriteUps en completados
 
+[Mr Robot 1](<Mr Robot 1/writeup/writeup Mr Robot 1.md>)
 [FristiLeaks 1.3](Fristileaks/writeup/writeup_fristileak.md)
 
 ## WriteUps en progreso
 
 [Kioptrix Level 1](<Kioptrix Level 1/writeup/writeup Kioptrix Level 1.md>)
 
-[Mr Robot 1](<Mr Robot 1/writeup/writeup Mr Robot 1.md>)
-
-##  WriteUps Futuros
+## WriteUps Futuros
 
 [Kioptrix Level 1.1](<Kioptrix Level 1.1/writeup/writeup Kioptrix Level 1.md>)
-
-
-
