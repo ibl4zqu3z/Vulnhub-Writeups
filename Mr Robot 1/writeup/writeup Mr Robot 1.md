@@ -1,11 +1,11 @@
 # MR ROBOT 1
 
-```_           _   
+```_           _
  _ __ ___  _ __ _ __ ___ | |__   ___ | |_ 
 | '_ ` _ \| '__| '__/ _ \| '_ \ / _ \| __|
 | | | | | | |  | | | (_) | |_) | (_) | |_ 
 |_| |_| |_|_|  |_|  \___/|_.__/ \___/ \__|
-```                                          
+```
 
 - **Date WriteUp**: 25 / 05 / 2024
 - **Difficulty**: beginner-intermediate
@@ -39,16 +39,17 @@
 
 - [MR ROBOT 1](#mr-robot-1)
   - [Resolucion de la maquina](#resolucion-de-la-maquina)
-  - [Fase de Fingerprinting / Reconocimiento (Reconnaissance):](#fase-de-fingerprinting--reconocimiento-reconnaissance)
+  - [Fase de Fingerprinting / Reconocimiento (Reconnaissance)](#fase-de-fingerprinting--reconocimiento-reconnaissance)
     - [Descubrimiento de IP objetivo en la red](#descubrimiento-de-ip-objetivo-en-la-red)
     - [Descubrimiento de Puertos en objetivo](#descubrimiento-de-puertos-en-objetivo)
-    - [Resumen de los hallazgos.](#resumen-de-los-hallazgos)
-  - [Fase de Footprinting / Exploración (Scanning):](#fase-de-footprinting--exploración-scanning)
+    - [Resumen de los hallazgos](#resumen-de-los-hallazgos)
+  - [Fase de Footprinting / Exploración (Scanning)](#fase-de-footprinting--exploración-scanning)
     - [Exploracion puerto 80](#exploracion-puerto-80)
       - [Resumen de resultados de la exploracion de directorios y ficheros](#resumen-de-resultados-de-la-exploracion-de-directorios-y-ficheros)
       - [Comprobacion de los hallazgos de la exploracion en el puerto 80](#comprobacion-de-los-hallazgos-de-la-exploracion-en-el-puerto-80)
         - [Comprobacion del archivo robots.txt](#comprobacion-del-archivo-robotstxt)
         - [Comprobacion de la instalacion Wordpress](#comprobacion-de-la-instalacion-wordpress)
+          - [Escaneo WPSCAN](#escaneo-wpscan)
   - [Fase de explotacion](#fase-de-explotacion)
     - [Acceso al panel de control con las credenciales obtenidas](#acceso-al-panel-de-control-con-las-credenciales-obtenidas)
     - [Obtencion de shell remota](#obtencion-de-shell-remota)
@@ -58,12 +59,11 @@
     - [Elevacion desde usuario daemon a usuario robot](#elevacion-desde-usuario-daemon-a-usuario-robot)
     - [Elevacion de privilegio a root](#elevacion-de-privilegio-a-root)
 
-
 Usaré una distribucion Kali OS como maquina atacante.
 
 ![alt text](<image copy.png>)
 
-## Fase de Fingerprinting / Reconocimiento (Reconnaissance): 
+## Fase de Fingerprinting / Reconocimiento (Reconnaissance)
 
 ### Descubrimiento de IP objetivo en la red
 
@@ -104,26 +104,25 @@ OS and Service detection performed. Please report any incorrect results at https
 Nmap done: 1 IP address (1 host up) scanned in 27.13 seconds
 ```
 
-### Resumen de los hallazgos.
+### Resumen de los hallazgos
 
 PORT    | STATE  | SERVICE  | VERSION
 --------|--------|----------|-------------
-22/tcp  | closed | ssh      |
+22/tcp  | closed | ssh      | -
 80/tcp  | open   | http     | Apache httpd
 443/tcp | open   | ssl/http | Apache httpd
 
 Linux 3.10 - 4.11 (98%)
 
-## Fase de Footprinting / Exploración (Scanning):
+## Fase de Footprinting / Exploración (Scanning)
 
 ### Exploracion puerto 80
 
-Navegacion en el puerto 80 presenta una animacion de estilo mr robot y nos da un menu donde podemos realizar ciertas acciones, ver videos, etc.
+Navegacion en el puerto 80 presenta una animacion de estilo mr robot y nos da un menu donde puedo realizar ciertas acciones, ver videos, etc.
 
 ![alt text](image-11.png)
 
 Realizo una busqueda de archivos y carpetas con diferentes herramientas con los siguientes comandos:
-
 
 ```bash
 dirsearch -u http://10.0.2.18:80 -i200    
@@ -152,13 +151,13 @@ dirsearch -u http://10.0.2.18:80 -i200
 
 ![escaneo dirsearch](image-12.png)
 
-```
+```bash
 nikto -h 10.0.2.18:80
 ```
 
 ![escaneo nikto](image-19.png)
 
-```
+```bash
 - Nikto v2.5.0
 ---------------------------------------------------------------------------
 + Target IP:          10.0.2.18
@@ -209,7 +208,7 @@ Se ha localizado lo siguiente que puede ser muy interesante de comprobar:
 
 He localizado un archivo robots.txt, compruebo su contenido.
 
-Compruebo : [robots-txt-endpoint] [http] [info] http://10.0.2.6/robots.txt   
+Compruebo : [robots-txt-endpoint] [http] [info] http://10.0.2.6/robots.txt
 
 ![alt text](image-14.png)
 
@@ -263,7 +262,7 @@ El archivo `wp-links-opml.php` pacere que revela la version instalada de wordpre
 
 Al comprobarlo nos da la version 4.3.33 de WordPress.
 
-**Escaneo WPSCAN**
+###### Escaneo WPSCAN
 
 ```bash
 wpscan --url http://10.0.2.18 
@@ -279,8 +278,7 @@ sort fsocity.dic | uniq | wc -l
 
 ![alt text](image-22.png)
 
-Vemos que se obtienen 11451 lineas unicas. Asi que creamos un fichero fsocity.dic.uniq con el comando 
-
+Veo que se obtienen 11451 lineas unicas. Asi que creo un fichero fsocity.dic.uniq con el comando
 
 ```bash
 sort fsocity.dic | uniq > fsocity.dic.uniq
@@ -408,7 +406,7 @@ Ejecuto un list de ficheros para comprobar el funcionamiento de la minishell y a
 
 ![alt text](image-44.png)
 
-Pruebo a leer el fichero passwd y compruebo que puedo verlo 
+Pruebo a leer el fichero passwd y compruebo que puedo verlo
 
 ![alt text](image-45.png)
 
@@ -471,7 +469,7 @@ Y ahora visito la pagina 404.php para ejecutar la shell y en la terminal donde h
 
 ![alt text](image-52.png)
 
-Modifico el bash para tener una terminal con funcionalidades con el comando: 
+Modifico el bash para tener una terminal con funcionalidades con el comando:
 
 ```bash
 python -c 'import pty; pty.spawn("/bin/sh")'
@@ -509,7 +507,7 @@ Para comprobarlo uso hash-identifier y le paso el hash
 
 ![alt text](image-59.png)
 
-Me devuelve MD5 como tipo posible para este hash. 
+Me devuelve MD5 como tipo posible para este hash.
 
 El siguiente paso es intentar romper este hash. Para ello voy a usar hashcat con el comando
 
@@ -565,7 +563,7 @@ Por ejemplo busco la posibildad de obtener shell con el binario nmap con el coma
 
 ![alt text](image-68.png)
 
-y obtengo que si la version de nmap es entre la 2.02 y la 5.21 puedo ejecutar comandos de shell. 
+y obtengo que si la version de nmap es entre la 2.02 y la 5.21 puedo ejecutar comandos de shell.
 
 Compruebo si la version de nmap se corresponde:
 
@@ -573,8 +571,7 @@ Compruebo si la version de nmap se corresponde:
 
 Obtengo que la version es 3.81, por lo que puedo aplicar el exploit para obtener una shell con permisos de root.
 
-
-Abrimos la consola interactiva de nmap con `nmap --interactive` y a continuacion ejecuto a `!sh` lo que me da una shell de root.
+Abro la consola interactiva de nmap con `nmap --interactive` y a continuacion ejecuto a `!sh` lo que me da una shell de root.
 
 ![alt text](image-71.png)
 
@@ -583,4 +580,3 @@ Compruebo su directorio y encuentro el fichero key-3-of-3.txt.
 ![alt text](image-72.png)
 
 Lo consulto y obtengo la tercera flag: **`04787ddef27c3dee1ee161b21670b4e4`**
-
