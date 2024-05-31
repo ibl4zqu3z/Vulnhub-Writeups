@@ -226,17 +226,29 @@ Para conseguir una shell reversa puedo obtenerla de:
 
 Busco en metasploit por si hubiera un exploit para este plugging de wordpress.
 
+```
 search wpdiscuz
+```
 
 ![alt text](image-22.png)
 
 ![alt text](image-23.png)
 
+Configuro las opciones del exploit definiendo la ip de la maquina objetivo 10.0.2.15, la maquina atacante 10.0.2.14. Y definiendo un link a una entrada donde este funcionando el plugin wpdiscuz ```?p=1```, la raiz de la aplicacion wordpress ```/assets/fonts/blog/```.
+
 ![alt text](image-24.png)
+
+Una vez definido ejecuto el exploit con ```run``` y tras su ejecucion obtengo una sesion de meterpreter en la maquina objetivo.
+
+Compruebo el usuario con el que he conseguido la shell en la maquina objetivo, compruebo tambien informacion de la maquina.
 
 ![alt text](image-25.png)
 
+Ejecuto el comando shell y a continuacion ejecuto ```script /dev/null -c bash``` para registrar la salida del terminal que la redirijo a /dev/null para que no se guarde el registro y ejecuto el comando bash que inicia una nueva sesion de bash.
+
 ![alt text](image-26.png)
+
+
 
 ![alt text](image-27.png)
 
@@ -244,18 +256,21 @@ search wpdiscuz
 
 ![alt text](image-31.png)
 
+Busco en directorio tmp
+
+![alt text](image-32.png)
+
+Encuentro un fichero backup.tar.gz que descomprimo obteniendo un fichero llamado user.txt.
+
+Al comprobar el contenido veo que hay un texto que parece estar codificado en base 64
+
+Decodifico y obtengo la flag
+
+![alt text](image-33.png)
+
 ### Elevacion de privilegios
 
-Necesito obtener privilegios para poder acceder al fichero user.txt y leer su contenido. 
-
-
-
-
-
-
-
-
-
+Necesito obtener privilegios para poder acceder al fichero user.txt y leer su contenido.
 
 
 
